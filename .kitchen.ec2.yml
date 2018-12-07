@@ -1,0 +1,54 @@
+---
+driver:
+  name: ec2
+  aws_ssh_key_id: kitchen-testing
+  subnet_filter:
+    tag:   'Name'
+    value: 'management-private-us-east-1a-subnet'
+  security_group_filter:
+    tag:   'Name'
+    value: 'devops-production-test-kitchen'
+  instance_type: t2.medium
+  retryable_tries: 200
+  retryable_sleep: 8
+  iam_profile_name: 'devops-production-deployment-bastion'
+  user_data: './ec2-userdata.ps1'
+  tags:
+    Name: 'Windows-Server-1803-Core-Containers-test'
+    Application: devops
+    Creator: test-kitchen
+    Owner: <%= ENV.has_key?('USER') ? ENV['USER'] : ENV['username'] %>
+    Environment: 'kitchen'
+    LineOfBusiness: 'Corporate Admin'
+    Role: 'testing'
+    Lifespan: 'temporary'
+    BusinessUnit: 'CIS'
+
+transport:
+  name: 'winrm'
+  elevated: true
+  username: 'Administrator'
+  ssh_key: ~/.ssh/test-kitchen
+provisioner:
+  name: chef_solo
+platforms:
+  - name: windows-server-1803-english-core-containers
+    driver:
+      image_search:
+        name: Windows_Server-1803-English-Core-ContainersLatest-*
+        owner-alias: amazon
+
+verifier:
+  name: inspec
+
+suites:
+  - name: default
+    run_list:
+      - recipe[windows-hardening::access]
+    # attributes:
+    #   security_policy:
+    #     rights:
+    #       SeNetworkLogonRight: '*S-1-1-0, *S-1-5-32-544, *S-1-5-32-545, *S-1-5-32-551'
+    #       SeRemoteInteractiveLogonRight: '*S-1-1-0, *S-1-5-32-544, *S-1-5-32-545, *S-1-5-32-551'
+
+    

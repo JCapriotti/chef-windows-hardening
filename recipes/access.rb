@@ -34,7 +34,7 @@ registry_key 'HKLM\\System\\CurrentControlSet\\Control\\Lsa' do
   values [{
     name: 'LmCompatibilityLevel',
     type: :dword,
-    data: 4
+    data: 5
   }]
   action :create
 end
